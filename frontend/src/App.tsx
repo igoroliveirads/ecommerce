@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { ShoppingCart, ShoppingBag, ArrowLeft, Search, X, Plus, Minus, Trash2 } from 'lucide-react';
+import { ShoppingCart, ShoppingBag, ArrowLeft, Search, Plus, Minus, Trash2 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
+import { motion, AnimatePresence } from 'framer-motion';
 import API_URL from './api-config';
 
 interface Product {
@@ -29,7 +30,7 @@ const App: React.FC = () => {
   }, [cart]);
 
   const fetchProducts = () => {
-    fetch('http://localhost:3001/api/products')
+    fetch(`${API_URL}/api/products`)
       .then(res => res.json())
       .then(data => setProducts(data))
       .catch(err => console.error("Erro ao carregar produtos:", err));
@@ -202,7 +203,7 @@ const ProductDetail: React.FC<{ addToCart: (p: Product) => void }> = ({ addToCar
   const productId = window.location.pathname.split('/').pop();
 
   useEffect(() => {
-    fetch(`http://localhost:3001/api/products/${productId}`).then(res => res.json()).then(data => setProduct(data));
+    fetch(`${API_URL}/api/products/${productId}`).then(res => res.json()).then(data => setProduct(data));
   }, [productId]);
 
   if (!product) return <div className="text-center py-20 font-bold">Carregando...</div>;
@@ -316,7 +317,7 @@ const AdminPanel: React.FC<{ products: Product[], fetchProducts: any }> = ({ pro
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const url = editing ? `http://localhost:3001/api/products/${editing.id}` : 'http://localhost:3001/api/products';
+    const url = editing ? `${API_URL}/api/products/${editing.id}` : `${API_URL}/api/products`;
     const method = editing ? 'PUT' : 'POST';
 
     const res = await fetch(url, {
@@ -335,7 +336,7 @@ const AdminPanel: React.FC<{ products: Product[], fetchProducts: any }> = ({ pro
 
   const deleteProduct = async (id: number) => {
     if (confirm('Tem certeza que deseja excluir este produto?')) {
-      const res = await fetch(`http://localhost:3001/api/products/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_URL}/api/products/${id}`, { method: 'DELETE' });
       if (res.ok) {
         toast.error('Produto excluído.');
         fetchProducts();
